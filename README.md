@@ -1,386 +1,302 @@
-# Metode Profile Matching  
-## Pemilihan Team Leader Terbaik
+# Metode TOPSIS - Pemilihan Lokasi Coffee Shop
 
----
-
-# Identitas
-
-- Nama: Sheina Azima  
-- NPM: 2255061020  
-- Mata Kuliah: Sistem Penunjang Keputusan  
+Dokumen ini berisi implementasi metode **TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)** menggunakan bahasa pemrograman Python untuk menentukan lokasi coffee shop terbaik.
 
 ---
 
 # Studi Kasus
 
-Sebuah perusahaan ingin memilih karyawan terbaik untuk dipromosikan menjadi **Team Leader** menggunakan metode **Profile Matching**.
+Sebuah perusahaan ingin menentukan lokasi terbaik untuk membuka coffee shop berdasarkan beberapa kriteria penilaian.
+
+## Alternatif Lokasi
+
+- A1 = Dekat Kampus
+- A2 = Pusat Kota
+- A3 = Perumahan
 
 ---
 
 # Kriteria Penilaian
 
-Kriteria yang digunakan:
-
-- Komunikasi
-- Kepemimpinan
-- Disiplin
-- Kerja Sama Tim
-
-## Pembagian Faktor
-
-### Core Factor (CF)
-- Komunikasi
-- Kepemimpinan
-
-### Secondary Factor (SF)
-- Disiplin
-- Kerja Sama Tim
-
-| Kriteria | Jenis | Target |
-|---|---|---|
-| Komunikasi | Core Factor | 5 |
-| Kepemimpinan | Core Factor | 5 |
-| Disiplin | Secondary Factor | 4 |
-| Kerja Sama Tim | Secondary Factor | 4 |
-
----
-
-# Data Kandidat
-
-| Kandidat | Komunikasi | Kepemimpinan | Disiplin | Kerja Sama Tim |
-|---|---|---|---|---|
-| Andi | 4 | 5 | 4 | 3 |
-| Budi | 5 | 4 | 5 | 4 |
-| Citra | 3 | 5 | 4 | 5 |
-| Dinda | 5 | 5 | 3 | 4 |
-
----
-
-# Tahapan Metode Profile Matching
-
-## 1. Identifikasi Masalah
-
-Perusahaan ingin menentukan kandidat terbaik yang layak dipromosikan menjadi Team Leader.
-
----
-
-## 2. Menentukan Kriteria dan Subkriteria
-
-Kriteria:
-- Komunikasi
-- Kepemimpinan
-- Disiplin
-- Kerja Sama Tim
-
----
-
-## 3. Menentukan Bobot
-
-- Core Factor = 60%
-- Secondary Factor = 40%
-
----
-
-## 4. Penentuan Nilai Target
-
-| Kriteria | Target |
+| Kriteria | Jenis |
 |---|---|
-| Komunikasi | 5 |
-| Kepemimpinan | 5 |
-| Disiplin | 4 |
-| Kerja Sama Tim | 4 |
+| Harga Sewa | Cost |
+| Kepadatan Penduduk | Benefit |
+| Akses Jalan | Benefit |
+| Tingkat Kemacetan | Cost |
+| Potensi Pasar | Benefit |
 
 ---
 
-# Perhitungan GAP
+# Bobot Kriteria
+
+| Kriteria | Bobot |
+|---|---|
+| Harga Sewa | 0.25 |
+| Kepadatan Penduduk | 0.20 |
+| Akses Jalan | 0.20 |
+| Tingkat Kemacetan | 0.15 |
+| Potensi Pasar | 0.20 |
+
+---
+
+# Data Alternatif
+
+| Alternatif | C1 | C2 | C3 | C4 | C5 |
+|---|---|---|---|---|---|
+| A1 | 7 | 8 | 9 | 6 | 8 |
+| A2 | 9 | 9 | 8 | 8 | 7 |
+| A3 | 6 | 7 | 7 | 5 | 9 |
+
+Keterangan:
+- C1 = Harga Sewa
+- C2 = Kepadatan Penduduk
+- C3 = Akses Jalan
+- C4 = Tingkat Kemacetan
+- C5 = Potensi Pasar
+
+---
+
+# Tahapan Metode TOPSIS
+
+## 1. Membentuk Matriks Keputusan
+
+Matriks keputusan dibentuk dari nilai setiap alternatif terhadap seluruh kriteria.
+
+```text
+A1 = [7, 8, 9, 6, 8]
+A2 = [9, 9, 8, 8, 7]
+A3 = [6, 7, 7, 5, 9]
+```
+
+---
+
+## 2. Normalisasi Matriks
+
+Rumus normalisasi:
+
+```math
+r_{ij} = \frac{x_{ij}}{\sqrt{\sum x_{ij}^2}}
+```
+
+Tujuan normalisasi adalah agar seluruh data memiliki skala yang sama.
+
+---
+
+## 3. Matriks Normalisasi Terbobot
 
 Rumus:
 
 ```math
-GAP = Nilai\ Kandidat - Nilai\ Target
+y_{ij} = w_j \times r_{ij}
 ```
 
-## Tabel GAP
-
-| Kandidat | Komunikasi | Kepemimpinan | Disiplin | Kerja Sama Tim |
-|---|---|---|---|---|
-| Andi | -1 | 0 | 0 | -1 |
-| Budi | 0 | -1 | 1 | 0 |
-| Citra | -2 | 0 | 0 | 1 |
-| Dinda | 0 | 0 | -1 | 0 |
+Nilai hasil normalisasi dikalikan dengan bobot masing-masing kriteria.
 
 ---
 
-# Konversi GAP ke Bobot
+## 4. Menentukan Solusi Ideal Positif dan Negatif
 
-## Tabel Bobot GAP
+### Solusi Ideal Positif (A+)
 
-| Selisih GAP | Bobot |
-|---|---|
-| 0 | 5 |
-| 1 | 4.5 |
-| -1 | 4 |
-| 2 | 3.5 |
-| -2 | 3 |
+Merupakan nilai terbaik dari setiap kriteria.
+
+### Solusi Ideal Negatif (A-)
+
+Merupakan nilai terburuk dari setiap kriteria.
 
 ---
 
-## Hasil Konversi GAP
+## 5. Menghitung Jarak Solusi Ideal
 
-| Kandidat | Komunikasi | Kepemimpinan | Disiplin | Kerja Sama Tim |
-|---|---|---|---|---|
-| Andi | 4 | 5 | 5 | 4 |
-| Budi | 5 | 4 | 4.5 | 5 |
-| Citra | 3 | 5 | 5 | 4.5 |
-| Dinda | 5 | 5 | 4 | 5 |
-
----
-
-# Perhitungan NCF dan NSF
-
-## Rumus Core Factor
+### Jarak terhadap Solusi Ideal Positif
 
 ```math
-NCF = \frac{Jumlah\ Nilai\ Core\ Factor}{Jumlah\ Item\ Core\ Factor}
+D_i^+ = \sqrt{\sum (y_{ij} - y_j^+)^2}
 ```
 
-## Rumus Secondary Factor
+### Jarak terhadap Solusi Ideal Negatif
 
 ```math
-NSF = \frac{Jumlah\ Nilai\ Secondary\ Factor}{Jumlah\ Item\ Secondary\ Factor}
+D_i^- = \sqrt{\sum (y_{ij} - y_j^-)^2}
 ```
 
 ---
 
-## Hasil Perhitungan
-
-### Andi
-
-```text
-NCF = (4 + 5) / 2 = 4.5
-NSF = (5 + 4) / 2 = 4.5
-```
-
-### Budi
-
-```text
-NCF = (5 + 4) / 2 = 4.5
-NSF = (4.5 + 5) / 2 = 4.75
-```
-
-### Citra
-
-```text
-NCF = (3 + 5) / 2 = 4
-NSF = (5 + 4.5) / 2 = 4.75
-```
-
-### Dinda
-
-```text
-NCF = (5 + 5) / 2 = 5
-NSF = (4 + 5) / 2 = 4.5
-```
-
----
-
-# Perhitungan Nilai Akhir
+## 6. Menghitung Nilai Preferensi
 
 Rumus:
 
 ```math
-Nilai\ Akhir = (60\% \times NCF) + (40\% \times NSF)
+V_i = \frac{D_i^-}{D_i^- + D_i^+}
 ```
 
-## Hasil Nilai Akhir
-
-| Kandidat | NCF | NSF | Nilai Akhir |
-|---|---|---|---|
-| Andi | 4.5 | 4.5 | 4.5 |
-| Budi | 4.5 | 4.75 | 4.6 |
-| Citra | 4 | 4.75 | 4.3 |
-| Dinda | 5 | 4.5 | 4.8 |
+Alternatif dengan nilai preferensi terbesar menjadi pilihan terbaik.
 
 ---
 
-# Perangkingan
+# Coding Python Metode TOPSIS
 
-| Ranking | Kandidat | Nilai |
+```python
+# TOPSIS - Pemilihan Lokasi Coffee Shop
+
+import numpy as np
+import pandas as pd
+
+# ------------------------------------------
+# Data alternatif
+# ------------------------------------------
+
+data = np.array([
+    [7, 8, 9, 6, 8],  # A1
+    [9, 9, 8, 8, 7],  # A2
+    [6, 7, 7, 5, 9]   # A3
+])
+
+# ------------------------------------------
+# Nama alternatif
+# ------------------------------------------
+
+alternatif = [
+    "A1 - Dekat Kampus",
+    "A2 - Pusat Kota",
+    "A3 - Perumahan"
+]
+
+# ------------------------------------------
+# Bobot kriteria
+# ------------------------------------------
+
+bobot = np.array([
+    0.25,
+    0.20,
+    0.20,
+    0.15,
+    0.20
+])
+
+# ------------------------------------------
+# Jenis kriteria
+# 1 = Benefit
+# 0 = Cost
+# ------------------------------------------
+
+kriteria = np.array([
+    0,  # Harga Sewa
+    1,  # Kepadatan Penduduk
+    1,  # Akses Jalan
+    0,  # Tingkat Kemacetan
+    1   # Potensi Pasar
+])
+
+# ------------------------------------------
+# Normalisasi Matriks
+# ------------------------------------------
+
+norm = data / np.sqrt((data**2).sum(axis=0))
+
+print("=== Matriks Normalisasi ===")
+print(norm)
+
+# ------------------------------------------
+# Matriks Ternormalisasi Terbobot
+# ------------------------------------------
+
+y = norm * bobot
+
+print("\n=== Matriks Ternormalisasi Terbobot ===")
+print(y)
+
+# ------------------------------------------
+# Solusi Ideal Positif dan Negatif
+# ------------------------------------------
+
+ideal_pos = np.where(
+    kriteria == 1,
+    y.max(axis=0),
+    y.min(axis=0)
+)
+
+ideal_neg = np.where(
+    kriteria == 1,
+    y.min(axis=0),
+    y.max(axis=0)
+)
+
+print("\n=== Solusi Ideal Positif ===")
+print(ideal_pos)
+
+print("\n=== Solusi Ideal Negatif ===")
+print(ideal_neg)
+
+# ------------------------------------------
+# Menghitung Jarak
+# ------------------------------------------
+
+d_pos = np.sqrt(((y - ideal_pos)**2).sum(axis=1))
+
+d_neg = np.sqrt(((y - ideal_neg)**2).sum(axis=1))
+
+print("\n=== Jarak Positif ===")
+print(d_pos)
+
+print("\n=== Jarak Negatif ===")
+print(d_neg)
+
+# ------------------------------------------
+# Menghitung Nilai Preferensi
+# ------------------------------------------
+
+v = d_neg / (d_pos + d_neg)
+
+# ------------------------------------------
+# Ranking
+# ------------------------------------------
+
+hasil = pd.DataFrame({
+    "Alternatif": alternatif,
+    "Nilai Preferensi": v
+})
+
+hasil = hasil.sort_values(
+    by="Nilai Preferensi",
+    ascending=False
+)
+
+print("\n=== Hasil Ranking ===")
+print(hasil)
+
+# ------------------------------------------
+# Kesimpulan
+# ------------------------------------------
+
+terbaik = hasil.iloc[0]
+
+print("\n=== Kesimpulan ===")
+print(
+    f"Lokasi terbaik adalah "
+    f"{terbaik['Alternatif']} "
+    f"dengan nilai preferensi "
+    f"{terbaik['Nilai Preferensi']:.4f}"
+)
+```
+
+---
+
+# Hasil Ranking
+
+| Ranking | Alternatif | Keterangan |
 |---|---|---|
-| 1 | Dinda | 4.8 |
-| 2 | Budi | 4.6 |
-| 3 | Andi | 4.5 |
-| 4 | Citra | 4.3 |
+| 1 | A1 - Dekat Kampus | Lokasi terbaik |
+| 2 | A3 - Perumahan | Alternatif kedua |
+| 3 | A2 - Pusat Kota | Alternatif terakhir |
 
 ---
 
 # Kesimpulan
 
-Berdasarkan metode **Profile Matching**, kandidat terbaik untuk dipromosikan menjadi **Team Leader** adalah:
+Berdasarkan metode **TOPSIS**, lokasi terbaik untuk membuka coffee shop adalah:
 
-> **Dinda** dengan nilai akhir sebesar **4.8**
+> **A1 - Dekat Kampus**
 
----
-
-# Coding Python Metode Profile Matching
-
-```python
-import pandas as pd
-
-# ==========================================
-# METODE PROFILE MATCHING
-# PEMILIHAN TEAM LEADER TERBAIK
-# ==========================================
-
-# ------------------------------------------
-# 1. Data Kandidat
-# ------------------------------------------
-
-data = {
-    'Kandidat': ['Andi', 'Budi', 'Citra', 'Dinda'],
-    'Komunikasi': [4, 5, 3, 5],
-    'Kepemimpinan': [5, 4, 5, 5],
-    'Disiplin': [4, 5, 4, 3],
-    'Kerja Sama Tim': [3, 4, 5, 4]
-}
-
-# Membuat DataFrame
-df = pd.DataFrame(data)
-
-print("================================")
-print("DATA KANDIDAT")
-print("================================")
-print(df)
-
-# ------------------------------------------
-# 2. Nilai Target
-# ------------------------------------------
-
-target = {
-    'Komunikasi': 5,
-    'Kepemimpinan': 5,
-    'Disiplin': 4,
-    'Kerja Sama Tim': 4
-}
-
-print("\n================================")
-print("NILAI TARGET")
-print("================================")
-print(target)
-
-# ------------------------------------------
-# 3. Menghitung GAP
-# ------------------------------------------
-
-gap_df = df.copy()
-
-for kolom in target:
-    gap_df[kolom] = df[kolom] - target[kolom]
-
-print("\n================================")
-print("TABEL GAP")
-print("================================")
-print(gap_df)
-
-# ------------------------------------------
-# 4. Konversi GAP ke Bobot
-# ------------------------------------------
-
-def bobot_gap(gap):
-
-    konversi = {
-        0: 5,
-        1: 4.5,
-        -1: 4,
-        2: 3.5,
-        -2: 3
-    }
-
-    return konversi.get(gap, 0)
-
-bobot_df = gap_df.copy()
-
-for kolom in target:
-    bobot_df[kolom] = gap_df[kolom].apply(bobot_gap)
-
-print("\n================================")
-print("HASIL KONVERSI GAP")
-print("================================")
-print(bobot_df)
-
-# ------------------------------------------
-# 5. Menentukan Core dan Secondary Factor
-# ------------------------------------------
-
-core_factor = ['Komunikasi', 'Kepemimpinan']
-
-secondary_factor = ['Disiplin', 'Kerja Sama Tim']
-
-# ------------------------------------------
-# 6. Menghitung NCF dan NSF
-# ------------------------------------------
-
-# NCF = rata-rata Core Factor
-bobot_df['NCF'] = bobot_df[core_factor].mean(axis=1)
-
-# NSF = rata-rata Secondary Factor
-bobot_df['NSF'] = bobot_df[secondary_factor].mean(axis=1)
-
-print("\n================================")
-print("NILAI NCF DAN NSF")
-print("================================")
-print(bobot_df[['Kandidat', 'NCF', 'NSF']])
-
-# ------------------------------------------
-# 7. Menghitung Nilai Akhir
-# ------------------------------------------
-
-# Rumus:
-# Nilai Akhir = (60% × NCF) + (40% × NSF)
-
-bobot_df['Nilai Akhir'] = (
-    (0.6 * bobot_df['NCF']) +
-    (0.4 * bobot_df['NSF'])
-)
-
-print("\n================================")
-print("NILAI AKHIR")
-print("================================")
-print(bobot_df[['Kandidat', 'Nilai Akhir']])
-
-# ------------------------------------------
-# 8. Melakukan Ranking
-# ------------------------------------------
-
-ranking = bobot_df[['Kandidat', 'Nilai Akhir']]
-
-ranking = ranking.sort_values(
-    by='Nilai Akhir',
-    ascending=False
-)
-
-ranking['Ranking'] = range(1, len(ranking) + 1)
-
-print("\n================================")
-print("HASIL RANKING")
-print("================================")
-print(ranking)
-
-# ------------------------------------------
-# 9. Menentukan Kandidat Terbaik
-# ------------------------------------------
-
-terbaik = ranking.iloc[0]
-
-print("\n================================")
-print("KESIMPULAN")
-print("================================")
-
-print(
-    f"Kandidat terbaik untuk menjadi "
-    f"Team Leader adalah "
-    f"{terbaik['Kandidat']} "
-    f"dengan nilai akhir "
-    f"{terbaik['Nilai Akhir']:.1f}"
-)
-```
+Karena memiliki nilai preferensi tertinggi dibandingkan alternatif lainnya.
