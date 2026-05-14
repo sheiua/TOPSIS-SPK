@@ -1,158 +1,197 @@
+import numpy as np
 import pandas as pd
 
-# ==========================================
-# METODE PROFILE MATCHING
-# PEMILIHAN TEAM LEADER TERBAIK
-# ==========================================
+# =========================
+# METODE TOPSIS
+# PEMILIHAN LOKASI COFFEE SHOP
+# =========================
 
-# ------------------------------------------
-# 1. Data Kandidat
-# ------------------------------------------
+# =========================
+# 1. Data Awal
+# =========================
 
-data = {
-    'Kandidat': ['Andi', 'Budi', 'Citra', 'Dinda'],
-    'Komunikasi': [4, 5, 3, 5],
-    'Kepemimpinan': [5, 4, 5, 5],
-    'Disiplin': [4, 5, 4, 3],
-    'Kerja Sama Tim': [3, 4, 5, 4]
-}
+data = np.array([
+    [7, 8, 9, 6, 8],  # A1
+    [9, 9, 8, 8, 7],  # A2
+    [6, 7, 7, 5, 9]   # A3
+])
 
-# Membuat DataFrame
-df = pd.DataFrame(data)
+alternatif = [
+    "A1 - Dekat Kampus",
+    "A2 - Pusat Kota",
+    "A3 - Perumahan"
+]
 
-print("================================")
-print("DATA KANDIDAT")
-print("================================")
-print(df)
+kriteria = ["C1", "C2", "C3", "C4", "C5"]
 
-# ------------------------------------------
-# 2. Nilai Target
-# ------------------------------------------
+# =========================
+# 2. Bobot Kriteria
+# =========================
 
-target = {
-    'Komunikasi': 5,
-    'Kepemimpinan': 5,
-    'Disiplin': 4,
-    'Kerja Sama Tim': 4
-}
+bobot = np.array([
+    0.25,  # C1
+    0.20,  # C2
+    0.20,  # C3
+    0.15,  # C4
+    0.20   # C5
+])
 
-print("\n================================")
-print("NILAI TARGET")
-print("================================")
-print(target)
+# =========================
+# 3. Jenis Kriteria
+# 1 = Benefit
+# 0 = Cost
+# =========================
 
-# ------------------------------------------
-# 3. Menghitung GAP
-# ------------------------------------------
+jenis = np.array([
+    0,  # C1 = Cost
+    1,  # C2 = Benefit
+    1,  # C3 = Benefit
+    0,  # C4 = Cost
+    1   # C5 = Benefit
+])
 
-gap_df = df.copy()
+# =========================
+# 4. Menampilkan Data Awal
+# =========================
 
-for kolom in target:
-    gap_df[kolom] = df[kolom] - target[kolom]
-
-print("\n================================")
-print("TABEL GAP")
-print("================================")
-print(gap_df)
-
-# ------------------------------------------
-# 4. Konversi GAP ke Bobot
-# ------------------------------------------
-
-def bobot_gap(gap):
-
-    konversi = {
-        0: 5,
-        1: 4.5,
-        -1: 4,
-        2: 3.5,
-        -2: 3
-    }
-
-    return konversi.get(gap, 0)
-
-bobot_df = gap_df.copy()
-
-for kolom in target:
-    bobot_df[kolom] = gap_df[kolom].apply(bobot_gap)
-
-print("\n================================")
-print("HASIL KONVERSI GAP")
-print("================================")
-print(bobot_df)
-
-# ------------------------------------------
-# 5. Menentukan Core dan Secondary Factor
-# ------------------------------------------
-
-core_factor = ['Komunikasi', 'Kepemimpinan']
-
-secondary_factor = ['Disiplin', 'Kerja Sama Tim']
-
-# ------------------------------------------
-# 6. Menghitung NCF dan NSF
-# ------------------------------------------
-
-# NCF = rata-rata Core Factor
-bobot_df['NCF'] = bobot_df[core_factor].mean(axis=1)
-
-# NSF = rata-rata Secondary Factor
-bobot_df['NSF'] = bobot_df[secondary_factor].mean(axis=1)
-
-print("\n================================")
-print("NILAI NCF DAN NSF")
-print("================================")
-print(bobot_df[['Kandidat', 'NCF', 'NSF']])
-
-# ------------------------------------------
-# 7. Menghitung Nilai Akhir
-# ------------------------------------------
-
-# Rumus:
-# Nilai Akhir = (60% × NCF) + (40% × NSF)
-
-bobot_df['Nilai Akhir'] = (
-    (0.6 * bobot_df['NCF']) +
-    (0.4 * bobot_df['NSF'])
+df_awal = pd.DataFrame(
+    data,
+    index=alternatif,
+    columns=kriteria
 )
 
-print("\n================================")
-print("NILAI AKHIR")
-print("================================")
-print(bobot_df[['Kandidat', 'Nilai Akhir']])
+print("\n==============================")
+print("DATA AWAL")
+print("==============================")
+print(df_awal)
 
-# ------------------------------------------
-# 8. Melakukan Ranking
-# ------------------------------------------
+# =========================
+# 5. Normalisasi Matriks (R)
+# =========================
 
-ranking = bobot_df[['Kandidat', 'Nilai Akhir']]
+pembagi = np.sqrt((data ** 2).sum(axis=0))
 
-ranking = ranking.sort_values(
-    by='Nilai Akhir',
+R = data / pembagi
+
+df_R = pd.DataFrame(
+    R,
+    index=alternatif,
+    columns=kriteria
+)
+
+print("\n==============================")
+print("MATRIKS NORMALISASI (R)")
+print("==============================")
+print(df_R.round(3))
+
+# =========================
+# 6. Normalisasi Terbobot (Y)
+# =========================
+
+Y = R * bobot
+
+df_Y = pd.DataFrame(
+    Y,
+    index=alternatif,
+    columns=kriteria
+)
+
+print("\n==============================")
+print("MATRIKS NORMALISASI TERBOBOT (Y)")
+print("==============================")
+print(df_Y.round(3))
+
+# =========================
+# 7. Solusi Ideal Positif
+# dan Negatif
+# =========================
+
+A_plus = np.where(
+    jenis == 1,
+    Y.max(axis=0),
+    Y.min(axis=0)
+)
+
+A_min = np.where(
+    jenis == 1,
+    Y.min(axis=0),
+    Y.max(axis=0)
+)
+
+print("\n==============================")
+print("SOLUSI IDEAL POSITIF (A+)")
+print("==============================")
+print(pd.Series(A_plus, index=kriteria).round(3))
+
+print("\n==============================")
+print("SOLUSI IDEAL NEGATIF (A-)")
+print("==============================")
+print(pd.Series(A_min, index=kriteria).round(3))
+
+# =========================
+# 8. Menghitung Jarak
+# =========================
+
+D_plus = np.sqrt(
+    ((Y - A_plus) ** 2).sum(axis=1)
+)
+
+D_min = np.sqrt(
+    ((Y - A_min) ** 2).sum(axis=1)
+)
+
+df_D = pd.DataFrame({
+    "D+": D_plus,
+    "D-": D_min
+}, index=alternatif)
+
+print("\n==============================")
+print("JARAK KE SOLUSI IDEAL")
+print("==============================")
+print(df_D.round(3))
+
+# =========================
+# 9. Menghitung
+# Nilai Preferensi (Vi)
+# =========================
+
+V = D_min / (D_plus + D_min)
+
+df_V = pd.DataFrame({
+    "Nilai Preferensi": V
+}, index=alternatif)
+
+# =========================
+# 10. Ranking
+# =========================
+
+df_V["Ranking"] = df_V[
+    "Nilai Preferensi"
+].rank(ascending=False)
+
+hasil = df_V.sort_values(
+    by="Nilai Preferensi",
     ascending=False
 )
 
-ranking['Ranking'] = range(1, len(ranking) + 1)
-
-print("\n================================")
+print("\n==============================")
 print("HASIL RANKING")
-print("================================")
-print(ranking)
+print("==============================")
+print(hasil.round(3))
 
-# ------------------------------------------
-# 9. Menentukan Kandidat Terbaik
-# ------------------------------------------
+# =========================
+# 11. Kesimpulan
+# =========================
 
-terbaik = ranking.iloc[0]
+terbaik = hasil.iloc[0]
 
-print("\n================================")
+print("\n==============================")
 print("KESIMPULAN")
-print("================================")
+print("==============================")
 
 print(
-    f"Kandidat terbaik untuk menjadi "
-    f"Team Leader adalah "
-    f"{terbaik['Kandidat']} "
-    f"dengan nilai akhir "
-    f"{terbaik['Nilai Akhir']:.1f}"
+    f"Alternatif terbaik adalah "
+    f"{terbaik.name} "
+    f"dengan nilai preferensi "
+    f"{terbaik['Nilai Preferensi']:.3f}"
 )
